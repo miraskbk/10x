@@ -13,7 +13,7 @@ function M.add()
     if path == "" then
         vim.notify("tenx: empty file", vim.log.levels.WARN)
         return
-    end
+   end
 
     for _, file in ipairs(list) do
         if file == path then
@@ -37,15 +37,24 @@ end
 
 function M.select(n)
     local path = list[n]
-    
-    if not path then 
-        vim.notify(string.format("tenx: no file in slot %d", n), vim.log.levels.WARN) 
-        return 
+    if not path then
+        vim.notify(string.format("tenx: no file in slot %d", n), vim.log.levels.WARN)
+        return
     end
 
     vim.cmd.edit(path)
+end
 
 
+function M.statusline()
+    local parts = {}
+
+    for i, path in ipairs(list) do
+        local name = vim.fn.fnamemodify(path, ":t")
+        table.insert(parts, i.." "..name)
+    end
+
+    return table.concat(parts, " ")
 end
 
 return M
