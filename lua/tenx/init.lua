@@ -1,10 +1,18 @@
 local M = {}
 local MAX_FILES = 5
-local list = {}
+local data = {}
 local DATA_FILE = vim.fn.stdpath("data") .. "/tenx.json"
 
+local function get_list()
+    local project = vim.fn.getcwd()
+    if not data[project] then
+        data[project] = {}
+    end
+    return data[project]
+end
+
 local function save()
-    local table_json = vim.json.encode(list)
+    local table_json = vim.json.encode(data)
     vim.fn.writefile({ table_json }, DATA_FILE)
 end
 
@@ -14,10 +22,12 @@ local function load()
         return
     end
     local content = vim.fn.readfile(DATA_FILE)[1]
-    list = vim.json.decode(content)
+    data = vim.json.decode(content)
 end
 
 function M.add()
+    load()
+    local list = get_list()
     local path = vim.api.nvim_buf_get_name(0)
 
     if vim.bo.buftype ~= "" then
@@ -47,10 +57,12 @@ function M.add()
 end
 
 function M.show()
+    local list = get_list()
     print(vim.inspect(list))
 end
 
 function M.select(n)
+    local list = get_list()
     local path = list[n]
     if not path then
         vim.notify(string.format("tenx: no file in slot %d", n), vim.log.levels.WARN)
@@ -61,6 +73,7 @@ function M.select(n)
 end
 
 function M.statusline()
+    local list = get_list()
     local parts = {}
 
     for i, path in ipairs(list) do
@@ -72,6 +85,8 @@ function M.statusline()
 end
 
 function M.remove()
+    load()
+    local list = get_list()
     local path = vim.api.nvim_buf_get_name(0)
 
     for i, file in ipairs(list) do
@@ -86,7 +101,8 @@ function M.remove()
 end
 
 function M.clear()
-    list = {}
+    load()
+    data[vim.fn.getcwd()] = {}
     vim.notify("tenx: cleared pinned files", vim.log.levels.INFO)
     save()
 end
