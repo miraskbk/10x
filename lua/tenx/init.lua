@@ -57,4 +57,29 @@ function M.statusline()
     return table.concat(parts, " ")
 end
 
+
+
+function M.remove()
+    local path = vim.api.nvim_buf_get_name(0)
+
+    for i, file in ipairs(list) do
+        if file == path then
+            table.remove(list, i)
+            vim.notify(string.format("tenx: unpinned %s", vim.fn.fnamemodify(path, ":t")), vim.log.levels.INFO)
+            return
+
+        end
+
+    end
+    vim.notify("tenx: file is not pinned", vim.log.levels.WARN)
+end
+
+
+function M.clear()
+
+    list = {}
+    vim.notify("tenx: cleared pinned files", vim.log.levels.INFO)
+
+end
+
 return M
