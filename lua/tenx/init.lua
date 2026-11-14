@@ -75,10 +75,15 @@ end
 function M.statusline()
     local list = get_list()
     local parts = {}
+    local current = vim.api.nvim_buf_get_name(0)
 
     for i, path in ipairs(list) do
         local name = vim.fn.fnamemodify(path, ":t")
-        table.insert(parts, i .. " " .. name)
+        local text = i .. " " .. name
+        if path == current then
+            text = "%#TabLineSel#" .. text .. "%#StatusLine#"
+        end
+        table.insert(parts, text)
     end
 
     return table.concat(parts, " ")
