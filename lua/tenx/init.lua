@@ -1,7 +1,16 @@
 local M = {}
-local MAX_FILES = 5
+
+local defaults = {
+    max_files = 5,
+}
+M.config = vim.deepcopy(defaults)
+
 local data = {}
 local DATA_FILE = vim.fn.stdpath("data") .. "/tenx.json"
+
+function M.setup(opts)
+    M.config = vim.tbl_deep_extend("force", defaults, opts or {})
+end
 
 local function get_list()
     local project = vim.fn.getcwd()
@@ -18,7 +27,6 @@ end
 
 local function load()
     if vim.fn.filereadable(DATA_FILE) == 0 then
-        vim.notify(string.format("tenx: cannot read from %s", DATA_FILE))
         return
     end
     local content = vim.fn.readfile(DATA_FILE)[1]
@@ -47,8 +55,8 @@ function M.add()
         end
     end
 
-    if #list >= MAX_FILES then
-        vim.notify(string.format("tenx: cannot pin more than %d files", MAX_FILES), vim.log.levels.WARN)
+    if #list >= M.config.max_files then
+        vim.notify(string.format("tenx: cannot pin more than %d files", M.config.max_files), vim.log.levels.WARN)
         return
     end
 
