@@ -30,7 +30,13 @@ local function load()
         return
     end
     local content = vim.fn.readfile(DATA_FILE)[1]
-    data = vim.json.decode(content)
+    local ok, decoded = pcall(vim.json.decode, content)
+    if not ok or type(decoded) ~= "table" then
+        vim.notify("tenx: saved pins are corrupted, starting fresh", vim.log.levels.WARN)
+        data = {}
+        return
+    end
+    data = decoded
 end
 
 function M.add()
